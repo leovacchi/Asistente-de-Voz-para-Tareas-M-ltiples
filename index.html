@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice Assistant</title>
+</head>
+<body>
+  <h1>Voice Assistant</h1>
+  <button id="startButton">Iniciar Asistente</button>
+  <div id="output"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const startButton = document.getElementById('startButton');
+      const outputDiv = document.getElementById('output');
+      let recognition;
+
+      if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+        // Crear una instancia de SpeechRecognition
+        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+
+        // Configuración de la instancia
+        recognition.lang = 'es-ES'; // Puedes ajustar el idioma según tus necesidades
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        // Evento cuando se detecta la voz
+        recognition.onresult = (event) => {
+          const result = event.results[0][0].transcript.toLowerCase();
+          outputDiv.textContent = `Comando reconocido: ${result}`;
+          executeCommand(result);
+        };
+
+        // Manejar errores
+        recognition.onerror = (event) => {
+          outputDiv.textContent = `Error en el reconocimiento de voz: ${event.error}`;
+        };
+
+        // Iniciar el reconocimiento de voz al hacer clic en el botón
+        startButton.addEventListener('click', () => {
+          outputDiv.textContent = 'Escuchando...';
+          recognition.start();
+        });
+      } else {
+        outputDiv.textContent = 'El reconocimiento de voz no es compatible con este navegador.';
+      }
+
+      // Función para ejecutar comandos
+      function executeCommand(command) {
+        if (command.includes('tomar nota')) {
+          // Lógica para tomar nota
+          outputDiv.textContent += '\nNota tomada.';
+        } else if (command.includes('calcular gastos')) {
+          // Lógica para calcular gastos
+          outputDiv.textContent += '\nGastos calculados.';
+        } else if (command.includes('agendar cita')) {
+          // Lógica para agendar cita
+          outputDiv.textContent += '\nCita agendada.';
+        } else {
+          outputDiv.textContent += `\nComando no reconocido: ${command}`;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
