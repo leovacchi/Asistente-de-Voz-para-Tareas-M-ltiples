@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es-Ar">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,48 +9,62 @@
   <h1>Voice Assistant</h1>
   <button id="startButton">Iniciar Asistente</button>
   <div id="output"></div>
+  <div id="notes">
+    <h2>Notas</h2>
+    <ul id="notesList"></ul>
+  </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const startButton = document.getElementById('startButton');
       const outputDiv = document.getElementById('output');
+      const notesList = document.getElementById('notesList');
       let recognition;
 
-      if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-        // Crear una instancia de SpeechRecognition
-        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      // Función para iniciar el reconocimiento de voz
+      function startRecognition() {
+        outputDiv.textContent = 'Escuchando...';
+        recognition.start();
+      }
 
-        // Configuración de la instancia
-        recognition.lang = 'es-ES'; // Puedes ajustar el idioma según tus necesidades
-        recognition.continuous = false;
-        recognition.interimResults = false;
+      // Función para guardar una nota en localStorage
+      function saveNote(note) {
+        let notes = JSON.parse(localStorage.getItem('notes')) || [];
+        notes.push(note);
+        localStorage.setItem('notes', JSON.stringify(notes));
+        renderNotes();
+      }
 
-        // Evento cuando se detecta la voz
-        recognition.onresult = (event) => {
-          const result = event.results[0][0].transcript.toLowerCase();
-          outputDiv.textContent = `Comando reconocido: ${result}`;
-          executeCommand(result);
-        };
-
-        // Manejar errores
-        recognition.onerror = (event) => {
-          outputDiv.textContent = `Error en el reconocimiento de voz: ${event.error}`;
-        };
-
-        // Iniciar el reconocimiento de voz al hacer clic en el botón
-        startButton.addEventListener('click', () => {
-          outputDiv.textContent = 'Escuchando...';
-          recognition.start();
+      // Función para renderizar las notas en la interfaz
+      function renderNotes() {
+        const notes = JSON.parse(localStorage.getItem('notes')) || [];
+        notesList.innerHTML = '';
+        notes.forEach((note, index) => {
+          const listItem = document.createElement('li');
+          listItem.textContent = `${index + 1}. ${note}`;
+          const deleteButton = document.createElement('button');
+          deleteButton.textContent = 'Eliminar';
+          deleteButton.addEventListener('click', () => deleteNote(index));
+          listItem.appendChild(deleteButton);
+          notesList.appendChild(listItem);
         });
-      } else {
-        outputDiv.textContent = 'El reconocimiento de voz no es compatible con este navegador.';
+      }
+
+      // Función para eliminar una nota
+      function deleteNote(index) {
+        let notes = JSON.parse(localStorage.getItem('notes')) || [];
+        notes.splice(index, 1);
+        localStorage.setItem('notes', JSON.stringify(notes));
+        renderNotes();
       }
 
       // Función para ejecutar comandos
       function executeCommand(command) {
         if (command.includes('tomar nota')) {
-          // Lógica para tomar nota
-          outputDiv.textContent += '\nNota tomada.';
+          const note = command.replace('tomar nota', '').trim();
+          if (note !== '') {
+            saveNote(note);
+          }
         } else if (command.includes('calcular gastos')) {
           // Lógica para calcular gastos
           outputDiv.textContent += '\nGastos calculados.';
@@ -61,6 +75,31 @@
           outputDiv.textContent += `\nComando no reconocido: ${command}`;
         }
       }
+
+      // Inicializar el reconocimiento de voz
+      if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'es-ES';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onresult = (event) => {
+          const result = event.results[0][0].transcript.toLowerCase();
+          outputDiv.textContent = `Comando reconocido: ${result}`;
+          executeCommand(result);
+        };
+
+        recognition.onerror = (event) => {
+          outputDiv.textContent = `Error en el reconocimiento de voz: ${event.error}`;
+        };
+
+        startButton.addEventListener('click', startRecognition);
+      } else {
+        outputDiv.textContent = 'El reconocimiento de voz no es compatible con este navegador.';
+      }
+
+      // Cargar y renderizar notas al cargar la página
+      renderNotes();
     });
   </script>
 </body>
