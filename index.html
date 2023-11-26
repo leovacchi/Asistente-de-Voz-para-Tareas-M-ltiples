@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es-Ar">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Voice Assistant</title>
+  <title>Asistente de voz</title>
 </head>
 <body>
-  <h1>Voice Assistant</h1>
+  <h1>Asistente de voz</h1>
   <button id="startButton">Iniciar Asistente</button>
   <div id="output"></div>
   <div id="notes">
@@ -62,6 +62,7 @@
       function executeCommand(command) {
         if (command.includes('computadora')) {
           speak('¡Hola Jefe! ¿En qué puedo ayudarte?');
+          readNotes();
           startRecognition(); // Iniciar el reconocimiento de voz después de la respuesta de voz
         } else if (command.includes('tomar nota')) {
           const note = command.replace('tomar nota', '').trim();
@@ -84,6 +85,19 @@
         const speechSynthesis = window.speechSynthesis;
         const utterance = new SpeechSynthesisUtterance(message);
         speechSynthesis.speak(utterance);
+      }
+
+      // Función para leer las notas
+      function readNotes() {
+        const notes = JSON.parse(localStorage.getItem('notes')) || [];
+        if (notes.length > 0) {
+          speak('Aquí están tus notas:');
+          notes.forEach((note, index) => {
+            speak(`${index + 1}. ${note}`);
+          });
+        } else {
+          speak('No tienes notas almacenadas.');
+        }
       }
 
       // Inicializar el reconocimiento de voz
