@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es-Ar">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -60,7 +60,10 @@
 
       // Función para ejecutar comandos
       function executeCommand(command) {
-        if (command.includes('tomar nota')) {
+        if (command.includes('computadora')) {
+          speak('¡Hola Jefe! ¿En qué puedo ayudarte?');
+          startRecognition(); // Iniciar el reconocimiento de voz después de la respuesta de voz
+        } else if (command.includes('tomar nota')) {
           const note = command.replace('tomar nota', '').trim();
           if (note !== '') {
             saveNote(note);
@@ -74,6 +77,13 @@
         } else {
           outputDiv.textContent += `\nComando no reconocido: ${command}`;
         }
+      }
+
+      // Función para sintetizar voz
+      function speak(message) {
+        const speechSynthesis = window.speechSynthesis;
+        const utterance = new SpeechSynthesisUtterance(message);
+        speechSynthesis.speak(utterance);
       }
 
       // Inicializar el reconocimiento de voz
