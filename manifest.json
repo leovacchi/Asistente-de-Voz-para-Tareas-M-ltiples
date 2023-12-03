@@ -6,7 +6,7 @@
   "display": "fullScreen",
   "orientation": "portrait",
   "scope": "/",
-  "start_url": "/",
+  "start_url": "https://leovacchi.github.io/Asistente-de-Voz-para-Tareas-M-ltiples/",
   "icons": [
     {
       "src": "images/icons/icon-72x72.png",
