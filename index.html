@@ -67,8 +67,16 @@
       const notesList = document.getElementById('notesList');
       let recognition;
 
+      // Verificar si ya se ha guardado el nombre en localStorage
+      let userName = localStorage.getItem('userName');
+      if (!userName) {
+        // Si no se ha guardado, pedir al usuario su nombre y guardarlo
+        userName = prompt('Por favor, ingresa tu nombre:');
+        localStorage.setItem('userName', userName);
+      }
+
       function startRecognition() {
-        outputDiv.textContent = 'Escuchando...';
+        outputDiv.textContent = `Hola, ${userName}! Escuchando...`;
         recognition.start();
       }
 
@@ -104,7 +112,7 @@
 
       function executeCommand(command) {
         if (command.includes('computadora')) {
-          speak('¡Hola Jefe! ¿En qué puedo ayudarte?');
+          speak(`¡Hola ${userName}! ¿En qué puedo ayudarte?`);
           startRecognition();
         } else if (command.includes('tomar nota')) {
           const note = command.replace('tomar nota', '').trim();
