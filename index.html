@@ -45,6 +45,9 @@
         <li class="nav-item">
           <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#tasksModal">Tareas</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#expensesModal">Gastos e Ingresos</a>
+        </li>
       </ul>
     </div>
   </div>
@@ -80,6 +83,21 @@
         </div>
         <div class="modal-body">
           <ul id="tasksList" class="list-group"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para mostrar los gastos e ingresos -->
+  <div class="modal fade" id="expensesModal" tabindex="-1" aria-labelledby="expensesModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="expensesModalLabel">Gastos e Ingresos</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ul id="expensesList" class="list-group"></ul>
         </div>
       </div>
     </div>
