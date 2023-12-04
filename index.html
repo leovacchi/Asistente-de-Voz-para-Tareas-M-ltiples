@@ -5,11 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Voice Assistant</title>
   <link rel="manifest" href="manifest.json">
-  <!-- Incluye la hoja de estilo de Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      padding-top: 56px; /* Altura de la barra de navegación */
+      padding-top: 56px;
     }
 
     #output {
@@ -18,24 +17,18 @@
   </style>
 </head>
 <body>
-  <!-- Barra de navegación fija en la parte superior -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
     <div class="container-fluid">
       <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar">
         <span class="navbar-toggler-icon"></span>
       </button>
-
-
       <div class="form-check form-switch navbar-brand">
         <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
-        <label class="form-check-label" for="flexSwitchCheckChecked">Comunicación por voz</label>
+        <label class="form-check-label" for="flexSwitchCheckChecked">por voz</label>
       </div>
-
-
     </div>
   </nav>
 
-  <!-- Menú lateral (sidebar) -->
   <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebar" aria-labelledby="sidebarLabel">
     <div class="offcanvas-header">
       <h5 class="offcanvas-title" id="sidebarLabel">Menú</h5>
@@ -56,7 +49,6 @@
     </div>
   </div>
 
-  <!-- Contenido principal -->
   <div class="container">
     <h1 class="mt-4">Voice Assistant</h1>
     <button id="startButton" class="btn btn-primary">Iniciar Asistente</button>
@@ -67,25 +59,19 @@
     </div>
   </div>
 
-  <!-- Incluye las bibliotecas de Bootstrap y Popper.js -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Tu script JavaScript aquí -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const startButton = document.getElementById('startButton');
       const outputDiv = document.getElementById('output');
       const notesList = document.getElementById('notesList');
-      const responseAudio = document.getElementById('responseAudio');
       let recognition;
 
-      // Función para iniciar el reconocimiento de voz
       function startRecognition() {
         outputDiv.textContent = 'Escuchando...';
         recognition.start();
       }
 
-      // Función para guardar una nota en localStorage
       function saveNote(note) {
         let notes = JSON.parse(localStorage.getItem('notes')) || [];
         notes.push(note);
@@ -93,22 +79,22 @@
         renderNotes();
       }
 
-      // Función para renderizar las notas en la interfaz
       function renderNotes() {
         const notes = JSON.parse(localStorage.getItem('notes')) || [];
         notesList.innerHTML = '';
-        notes.forEach((note, index) => {
-          const listItem = document.createElement('li');
-          listItem.textContent = `${index + 1}. ${note}`;
-          const deleteButton = document.createElement('button');
-          deleteButton.textContent = 'Eliminar';
-          deleteButton.addEventListener('click', () => deleteNote(index));
-          listItem.appendChild(deleteButton);
-          notesList.appendChild(listItem);
-        });
+        notes.forEach(renderNote);
       }
 
-      // Función para eliminar una nota
+      function renderNote(note, index) {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${index + 1}. ${note}`;
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Eliminar';
+        deleteButton.addEventListener('click', () => deleteNote(index));
+        listItem.appendChild(deleteButton);
+        notesList.appendChild(listItem);
+      }
+
       function deleteNote(index) {
         let notes = JSON.parse(localStorage.getItem('notes')) || [];
         notes.splice(index, 1);
@@ -116,29 +102,30 @@
         renderNotes();
       }
 
-      // Función para ejecutar comandos
       function executeCommand(command) {
         if (command.includes('computadora')) {
-          responseAudio.play(); // Reproducir el mensaje de audio
-          outputDiv.textContent = '¡Hola Jefe! ¿En qué puedo ayudarte?';
-          startRecognition(); // Iniciar el reconocimiento de voz después de la respuesta de audio
+          speak('¡Hola Jefe! ¿En qué puedo ayudarte?');
+          startRecognition();
         } else if (command.includes('tomar nota')) {
           const note = command.replace('tomar nota', '').trim();
           if (note !== '') {
             saveNote(note);
           }
         } else if (command.includes('calcular gastos')) {
-          // Lógica para calcular gastos
           outputDiv.textContent += '\nGastos calculados.';
         } else if (command.includes('agendar cita')) {
-          // Lógica para agendar cita
           outputDiv.textContent += '\nCita agendada.';
         } else {
           outputDiv.textContent += `\nComando no reconocido: ${command}`;
         }
       }
 
-      // Inicializar el reconocimiento de voz
+      function speak(text) {
+        const synth = window.speechSynthesis;
+        const utterance = new SpeechSynthesisUtterance(text);
+        synth.speak(utterance);
+      }
+
       if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         recognition.lang = 'es-ES';
@@ -160,7 +147,6 @@
         outputDiv.textContent = 'El reconocimiento de voz no es compatible con este navegador.';
       }
 
-      // Cargar y renderizar notas al cargar la página
       renderNotes();
     });
   </script>
