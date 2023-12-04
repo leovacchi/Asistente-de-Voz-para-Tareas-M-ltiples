@@ -65,10 +65,13 @@
                     <a class="nav-link" href="#">Inicio</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Notas</a>
+                    <a class="nav-link" href="#" onclick="openNotesModal()">Ver Notas</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Otra Página</a>
+                    <a class="nav-link" href="#" onclick="openTasksModal()">Ver Tareas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="openFinancesModal()">Ver Finanzas</a>
                 </li>
             </ul>
         </div>
@@ -85,10 +88,11 @@
         </div>
         <div id="tasks" class="mt-3">
             <h2>Tareas</h2>
-            <ul id="tasksList" class="list-group"></ul>
+            <button id="openTasksModalBtn" class="btn btn-primary">Ver Tareas</button>
         </div>
         <div id="finances" class="mt-3">
             <h2>Finanzas</h2>
+            <button id="openFinancesModalBtn" class="btn btn-primary">Ver Finanzas</button>
             <ul id="financesList" class="list-group"></ul>
             <div id="balanceChartContainer">
                 <canvas id="balanceChart" width="800" height="400"></canvas>
