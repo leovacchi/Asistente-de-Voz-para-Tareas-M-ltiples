@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const notesList = document.getElementById('notesList');
     const tasksList = document.getElementById('tasksList');
     const financesList = document.getElementById('financesList');
+    const balanceOutput = document.getElementById('balanceOutput');
+    const balanceChart = document.getElementById('balanceChart').getContext('2d');
     let recognition;
   
     let userName = localStorage.getItem('userName');
@@ -11,6 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
       userName = prompt('Por favor, ingresa tu nombre:');
       localStorage.setItem('userName', userName);
     }
+  
+    let balance = 0;
+    let finances = JSON.parse(localStorage.getItem('finances')) || [];
+    updateBalance();
   
     function startRecognition() {
       outputDiv.textContent = `Hola, ${userName}! ¿En qué puedo ayudarte?`;
@@ -32,10 +38,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   
     function saveFinance(finance) {
-      let finances = JSON.parse(localStorage.getItem('finances')) || [];
       finances.push(finance);
       localStorage.setItem('finances', JSON.stringify(finances));
+      updateBalance();
       renderFinances();
+      renderBalanceChart();
+    }
+  
+    function updateBalance() {
+      balance = finances.reduce((total, finance) => {
+        const amount = parseFloat(finance.split(': ')[1]) || 0;
+        return total + amount;
+      }, 0);
+      balanceOutput.textContent = `Balance: $${balance.toFixed(2)}`;
     }
   
     function renderNotes() {
@@ -101,10 +116,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   
     function deleteFinance(index) {
-      let finances = JSON.parse(localStorage.getItem('finances')) || [];
       finances.splice(index, 1);
       localStorage.setItem('finances', JSON.stringify(finances));
+      updateBalance();
       renderFinances();
+      renderBalanceChart();
     }
   
     function executeCommand(command) {
@@ -121,15 +137,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (task !== '') {
           saveTask(task);
         }
-      } else if (command.includes('ingresar gasto')) {
-        const expense = command.replace('ingresar gasto', '').trim();
+      } else if (command.includes('registrar gasto')) {
+        const expense = command.replace('registrar gasto', '').trim();
         if (expense !== '') {
-          saveFinance(`Gasto: ${expense}`);
+          saveFinance(`Gasto: $${parseFloat(expense).toFixed(2)}`);
         }
-      } else if (command.includes('ingresar ingreso')) {
-        const income = command.replace('ingresar ingreso', '').trim();
+      } else if (command.includes('registrar ingreso')) {
+        const income = command.replace('registrar ingreso', '').trim();
         if (income !== '') {
-          saveFinance(`Ingreso: ${income}`);
+          saveFinance(`Ingreso: $${parseFloat(income).toFixed(2)}`);
         }
       } else if (command.includes('ver notas')) {
         renderNotes();
@@ -143,6 +159,8 @@ document.addEventListener('DOMContentLoaded', () => {
         renderFinances();
         const financesModal = new bootstrap.Modal(document.getElementById('financesModal'));
         financesModal.show();
+      } else if (command.includes('ver balance')) {
+        speak(`Tu balance actual es de $${balance.toFixed(2)}`);
       } else if (command.includes('calcular gastos')) {
         outputDiv.textContent += '\nGastos calculados.';
       } else if (command.includes('agendar cita')) {
@@ -156,6 +174,32 @@ document.addEventListener('DOMContentLoaded', () => {
       const synth = window.speechSynthesis;
       const utterance = new SpeechSynthesisUtterance(text);
       synth.speak(utterance);
+    }
+  
+    function renderBalanceChart() {
+      const labels = finances.map((finance, index) => `Transacción ${index + 1}`);
+      const amounts = finances.map(finance => parseFloat(finance.split(': ')[1]) || 0);
+  
+      new Chart(balanceChart, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Balance a lo largo del tiempo',
+            data: amounts,
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1,
+            fill: false
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: false
+            }
+          }
+        }
+      });
     }
   
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
@@ -182,5 +226,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderNotes();
     renderTasks();
     renderFinances();
+    renderBalanceChart();
   });
   
