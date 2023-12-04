@@ -43,7 +43,7 @@
           <a class="nav-link" href="#">Notas</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Otra Página</a>
+          <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#tasksModal">Tareas</a>
         </li>
       </ul>
     </div>
@@ -59,24 +59,38 @@
     </div>
   </div>
 
+  <!-- Modal para mostrar las tareas -->
+  <div class="modal fade" id="tasksModal" tabindex="-1" aria-labelledby="tasksModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="tasksModalLabel">Tareas para el día de hoy</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ul id="tasksList" class="list-group"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const startButton = document.getElementById('startButton');
       const outputDiv = document.getElementById('output');
       const notesList = document.getElementById('notesList');
+      const tasksList = document.getElementById('tasksList');
       let recognition;
 
-      // Verificar si ya se ha guardado el nombre en localStorage
       let userName = localStorage.getItem('userName');
       if (!userName) {
-        // Si no se ha guardado, pedir al usuario su nombre y guardarlo
         userName = prompt('Por favor, ingresa tu nombre:');
         localStorage.setItem('userName', userName);
       }
 
       function startRecognition() {
-        outputDiv.textContent = `Hola, ${userName}! Escuchando...`;
+        outputDiv.textContent = `Hola, ${userName}! ¿En qué puedo ayudarte?`;
         recognition.start();
       }
 
@@ -87,10 +101,23 @@
         renderNotes();
       }
 
+      function saveTask(task) {
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        tasks.push(task);
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        renderTasks();
+      }
+
       function renderNotes() {
         const notes = JSON.parse(localStorage.getItem('notes')) || [];
         notesList.innerHTML = '';
         notes.forEach(renderNote);
+      }
+
+      function renderTasks() {
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        tasksList.innerHTML = '';
+        tasks.forEach(renderTask);
       }
 
       function renderNote(note, index) {
@@ -103,11 +130,28 @@
         notesList.appendChild(listItem);
       }
 
+      function renderTask(task, index) {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${index + 1}. ${task}`;
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Eliminar';
+        deleteButton.addEventListener('click', () => deleteTask(index));
+        listItem.appendChild(deleteButton);
+        tasksList.appendChild(listItem);
+      }
+
       function deleteNote(index) {
         let notes = JSON.parse(localStorage.getItem('notes')) || [];
         notes.splice(index, 1);
         localStorage.setItem('notes', JSON.stringify(notes));
         renderNotes();
+      }
+
+      function deleteTask(index) {
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        tasks.splice(index, 1);
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        renderTasks();
       }
 
       function executeCommand(command) {
@@ -119,6 +163,16 @@
           if (note !== '') {
             saveNote(note);
           }
+        } else if (command.includes('anotar tarea para hoy')) {
+          const task = command.replace('anotar tarea para hoy', '').trim();
+          if (task !== '') {
+            saveTask(task);
+          }
+        } else if (command.includes('ver tareas')) {
+          renderTasks();
+          // Mostrar el modal de tareas
+          const tasksModal = new bootstrap.Modal(document.getElementById('tasksModal'));
+          tasksModal.show();
         } else if (command.includes('calcular gastos')) {
           outputDiv.textContent += '\nGastos calculados.';
         } else if (command.includes('agendar cita')) {
